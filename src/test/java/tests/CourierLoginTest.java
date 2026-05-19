@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import utils.CourierGenerator;
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,6 +36,8 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Успешная авторизация курьера")
+    @Description("Проверка, что зарегистрированный курьер может авторизоваться, а ответ содержит id.")
     public void shouldLoginCourier() {
         Response response = courierClient.loginCourier(CourierCredentials.from(courier));
         response.then()
@@ -42,6 +46,8 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Ошибка авторизации без логина")
+    @Description("Проверка, что если не передать логин, API возвращает код 400 и сообщение о недостаточности данных для входа.")
     public void shouldReturnErrorWhenLoginMissing() {
         CourierCredentials credentials = new CourierCredentials(null, courier.getPassword());
 
@@ -52,16 +58,20 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Ошибка авторизации без пароля")
+    @Description("Проверка, что если не передать пароль, API возвращает код 400 и сообщение о недостаточности данных для входа.")
     public void shouldReturnErrorWhenPasswordMissing() {
         CourierCredentials credentials = new CourierCredentials(courier.getLogin(), null);
 
         Response response = courierClient.loginCourier(credentials);
         response.then()
-                .statusCode(504)
-                .body(equalTo("Service unavailable"));
+                .statusCode(400)
+                .body("message", equalTo("Недостаточно данных для входа"));
     }
 
     @Test
+    @DisplayName("Ошибка авторизации с неверным логином")
+    @Description("Проверка, что при неверном логине API возвращает код 404 и сообщение о ненайденной учетной записи.")
     public void shouldReturnErrorWhenWrongLogin() {
         CourierCredentials credentials = new CourierCredentials("wrong_login", courier.getPassword());
 
@@ -72,6 +82,8 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Ошибка авторизации с неверным паролем")
+    @Description("Проверка, что при неверном пароле API возвращает код 404 и сообщение о ненайденной учетной записи.")
     public void shouldReturnErrorWhenWrongPassword() {
         CourierCredentials credentials = new CourierCredentials(courier.getLogin(), "wrong_password");
 
@@ -82,6 +94,8 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Ошибка авторизации несуществующего курьера")
+    @Description("Проверка, что несуществующий пользователь не может авторизоваться, а API возвращает код 404 и сообщение о ненайденной учетной записи.")
     public void shouldReturnErrorForNonExistingCourier() {
         CourierCredentials credentials = new CourierCredentials("not_exist_user", "12345");
 
